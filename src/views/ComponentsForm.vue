@@ -72,6 +72,8 @@
 
 <script>
 import { useField, useForm } from 'vee-validate';
+import { object, string, number, boolean } from 'yup';
+
 export default {
   data() {
     return {
@@ -87,38 +89,15 @@ export default {
     };
   },
   setup() {
-    const required = (value) => {
-      const requiredMessage = 'This field is required';
-      if (value === undefined || value === null) return requiredMessage;
-      if (!String(value).length) return requiredMessage;
-      return true;
-    };
-    const minLength = (number, value) => {
-      if (String(value).length < number)
-        return 'Please type at least ' + number + ' characters';
-      return true;
-    };
-    const anything = () => {
-      return true;
-    };
-
-    const validationSchema = {
-      category: required,
-      title: (value) => {
-        const req = required(value);
-        if (req !== true) return req;
-
-        const min = minLength(3, value);
-        if (min !== true) return min;
-
-        return true;
-      },
-      description: required,
-      location: undefined,
-      pets: anything,
-      catering: anything,
-      music: anything,
-    };
+    const validationSchema = object({
+      category: string().required(),
+      title: string().required('A cool title is required').min(3),
+      description: string().required(),
+      location: string(),
+      pets: number(),
+      catering: boolean(),
+      music: boolean(),
+    });
 
     // handleSubmit is provided by Vee-Validate, that handles checking that the form is valid before submitting it for us
     // The second params 'errors' is an Object that contains all our error messages if they're present
