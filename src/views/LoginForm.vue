@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent="onSubmit">
-    <BaseInput label="Email" type="email" />
+    <BaseInput label="Email" type="email" v-model="email" :error="emailError" />
 
     <BaseInput label="Password" type="password" />
 
@@ -9,13 +9,36 @@
 </template>
 
 <script>
+import { useField } from 'vee-validate';
+
 export default {
   setup() {
     function onSubmit() {
       alert('Submitted');
     }
+
+    // Could also be written without descructuring like so -->
+    // const email = useField('email', (value) => {...})
+    const { value: email, errorMessage: emailError } = useField(
+      'email',
+      (value) => {
+        if (!value) return 'This field is required';
+
+        const regex =
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (!regex.test(String(value).toLowerCase())) {
+          return 'Please enter a valid email address';
+        }
+        return true;
+      }
+    );
+
     return {
       onSubmit,
+      email,
+      // email: email.value,
+      emailError,
+      // emailerror: email.errorMessage,
     };
   },
 };
