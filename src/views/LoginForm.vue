@@ -1,6 +1,13 @@
 <template>
   <form @submit.prevent="onSubmit">
-    <BaseInput label="Email" type="email" v-model="email" :error="emailError" />
+    <!-- Lazy Validation: we want to listen to change and not imput -->
+    <BaseInput
+      label="Email"
+      type="email"
+      :error="emailError"
+      :modelValue="email"
+      @change="handleChange"
+    />
 
     <BaseInput
       label="Password"
@@ -43,7 +50,10 @@ export default {
       },
     };
 
-    useForm({
+    // setFieldValue function will trigger the validation rules on the form’s field who was modified,
+    // which would not be the case if we modified it directly.
+    // see more : https://vee-validate.logaretm.com/v4/api/use-form#composable-api
+    const { setFieldValue } = useForm({
       validationSchema: validations,
     });
 
@@ -51,12 +61,17 @@ export default {
     const { value: password, errorMessage: passwordError } =
       useField('password');
 
+    const handleChange = (event) => {
+      setFieldValue('email', event.target.value);
+    };
+
     return {
       onSubmit,
       email,
       emailError,
       password,
       passwordError,
+      handleChange,
     };
   },
 };
