@@ -7,21 +7,21 @@
         label="Select a category"
         :options="categories"
         v-model="category"
-        :error="categoryError"
+        :error="errors.category"
       />
 
       <h3>Name & describe your event</h3>
       <BaseInput
         label="Title"
         v-model="title"
-        :error="titleError"
+        :error="errors.title"
         type="text"
       />
 
       <BaseInput
         label="Description"
         v-model="description"
-        :error="descriptionError"
+        :error="errors.description"
         type="text"
       />
 
@@ -29,14 +29,14 @@
       <BaseInput
         label="Location"
         v-model="location"
-        :error="locationError"
+        :error="errors.location"
         type="text"
       />
 
       <h3>Are pets allowed?</h3>
       <BaseRadioGroup
         v-model="pets"
-        :error="petsError"
+        :error="errors.pets"
         name="pets"
         :options="[
           { value: 1, label: 'Yes' },
@@ -49,12 +49,16 @@
         <BaseCheckbox
           label="Catering"
           v-model="catering"
-          :error="cateringError"
+          :error="errors.catering"
         />
       </div>
 
       <div>
-        <BaseCheckbox label="Live music" v-model="music" :error="musicError" />
+        <BaseCheckbox
+          label="Live music"
+          v-model="music"
+          :error="errors.music"
+        />
       </div>
 
       <div>
@@ -117,34 +121,24 @@ export default {
     };
 
     // handleSubmit is provided by Vee-Validate, that handles checking that the form is valid before submitting it for us
-    const { handleSubmit } = useForm({
+    // The second params 'errors' is an Object that contains all our error messages if they're present
+    const { handleSubmit, errors } = useForm({
       validationSchema,
+      initialValues: {
+        pets: 1,
+        catering: false,
+        music: false,
+      },
     });
 
-    const { value: category, errorMessage: categoryError } =
-      useField('category');
-    const { value: title, errorMessage: titleError } = useField('title');
-    const { value: description, errorMessage: descriptionError } =
-      useField('description');
-    const { value: location, errorMessage: locationError } =
-      useField('location');
-
-    // For the next 3 fields, useField shows 3 parameters : model, validation method, config object - set property initialValue
-    const { value: pets, errorMessage: petsError } = useField(
-      'pets',
-      undefined, // set to 'anything' inside 'validationSchema'
-      { initialValue: 1 }
-    );
-    const { value: catering, errorMessage: cateringError } = useField(
-      'catering',
-      undefined, // set to 'anything' inside 'validationSchema'
-      { initialValue: false }
-    );
-    const { value: music, errorMessage: musicError } = useField(
-      'music',
-      undefined, // set to 'anything' inside 'validationSchema'
-      { initialValue: false }
-    );
+    // Thanks to the errors Object, we can now remove the errorMessage
+    const { value: category } = useField('category');
+    const { value: title } = useField('title');
+    const { value: description } = useField('description');
+    const { value: location } = useField('location');
+    const { value: pets } = useField('pets');
+    const { value: catering } = useField('catering');
+    const { value: music } = useField('music');
 
     // Our submit form logic
     const submit = handleSubmit((values) => {
@@ -158,21 +152,15 @@ export default {
 
     return {
       category,
-      categoryError,
       title,
-      titleError,
       description,
-      descriptionError,
       location,
-      locationError,
       pets,
-      petsError,
       catering,
-      cateringError,
       music,
-      musicError,
 
       submit,
+      errors,
     };
   },
 };
